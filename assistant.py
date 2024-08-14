@@ -7,12 +7,21 @@ import ollama
 
 convo = []
 
+def stream_content(prompt):
+    convo.append({ 'role': 'user', 'content' : prompt})
+    response = ''
+    stream =  ollama.chat(model='llama3.1', messages=convo, stream=True)
+    
+    print('\nAssitant:')
+    
+    for chunk in stream: 
+        content = chunk['message']['content']
+        response += content
+        print(content, end='', flush=True)
+        
+    print('\n')
+    convo.append({'role': 'assistant', 'content': response})
+    
 while True:
     prompt = input('User: \n')
-    convo.append({ 'role': 'user', 'content' : prompt})
-    
-    output = ollama.chat(model='llama3.1', messages=convo)
-    response = output['message']['content']
-    
-    print(f'Assitant: \n{response} \n')
-    convo.append({'role': 'assistant', 'content': response})
+    stream_content(prompt)
